@@ -1,0 +1,38 @@
+{
+  "name": "medmaps",
+  "version": "0.0.1",
+  "license": "MIT",
+  "scripts": {
+    "start-local": "webpack-dev-server --env.local --progress --hot --open",
+    "start": "webpack-dev-server --progress --hot --open",
+    "build": "webpack"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.9.5",
+    "@material-ui/icons": "^4.9.1",
+    "d3": "^4.13.0",
+    "deck.gl": "^8.0.0",
+    "gsap": "^3.1.1",
+    "jquery": "^3.4.1",
+    "react": "^16.3.0",
+    "react-dom": "^16.3.0",
+    "react-map-gl": "^5.0.0",
+    "react-picky": "^5.2.5",
+    "resize-observer-polyfill": "^1.5.1",
+    "sass": "^1.26.3",
+    "sass-loader": "^8.0.2",
+    "sort-json-array": "^0.1.7",
+    "style-loader": "^1.1.4",
+    "tagmap.js": "^1.1.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/preset-react": "^7.0.0",
+    "babel-loader": "^8.0.5",
+    "css-loader": "^3.4.2",
+    "csv-loader": "^3.0.2",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.1.1"
+  }
+}

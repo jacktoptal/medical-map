@@ -1,0 +1,33 @@
+.filter {
+  background-color: white;
+  flex: 1;
+}
+
+
+.filter-item{
+  display: flex;
+  width: inherit;
+}
+
+.filter-item-title{
+  width: 150px;
+}
+
+.filter-item-value{
+  flex: 1;
+  background-color: rgb(231, 231, 231);
+}
+
+.MuiMenu-paper{
+  max-height: 90% !important;
+}
+
+.MuiCheckbox-colorSecondary.Mui-checked{
+  color: #1b568b !important;
+}
+
+@media all and (min-width: 0) and (max-width: 1280px) {
+}
+
+@media all and (min-width: 1281px) {
+}

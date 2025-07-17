@@ -1,0 +1,16 @@
+{
+  "marker-choice": {
+    "x": 0,
+    "y": 0,
+    "width": 128,
+    "height": 128,
+    "anchorY": 128
+  },
+  "marker-single": {
+    "x": 128,
+    "y": 0,
+    "width": 128,
+    "height": 128,
+    "anchorY": 128
+  }
+}

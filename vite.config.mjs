@@ -52,6 +52,9 @@ export default defineConfig(({ mode }) => {
             if (!id.includes('node_modules')) return;
 
             if (id.includes('node_modules/mapbox-gl/')) return 'vendor-mapbox';
+            if (id.includes('node_modules/@loaders.gl/')) return 'vendor-loadersgl';
+            if (id.includes('node_modules/@luma.gl/')) return 'vendor-lumagl';
+            if (id.includes('node_modules/@math.gl/')) return 'vendor-mathgl';
             if (id.includes('node_modules/@deck.gl/')) return 'vendor-deckgl';
             if (id.includes('node_modules/@mui/')) return 'vendor-mui';
             if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {

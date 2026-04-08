@@ -36,72 +36,44 @@ class CoverageMap extends Component {
     this.onViewStateChange = this.onViewStateChange.bind(this);
 
     this.layers = [];
-
-    const centroidByCounty = new Map();
-    for (let i = 0; i < this.props.CountyCentroidData.length; i++) {
-      const row = this.props.CountyCentroidData[i];
-      const county = row.county;
-      if (!centroidByCounty.has(county)) {
-        centroidByCounty.set(county, []);
-      }
-      centroidByCounty.get(county).push(row);
-    }
-
-    this.geoLayers = [];
-    this.geoTextLayers = [];
-    for (let i = 0; i < this.props.CountyData.length; i++) {
-      const county = this.props.CountyData[i].county;
-      const geoData =
-        'https://raw.githubusercontent.com/belopot/medmaps/master/assets/geojson/TX/' +
-        county +
-        '.geo.json';
-      const geoLayer = new GeoJsonLayer({
-        id: 'geo_' + county,
-        data: geoData,
-        opacity: 1,
-        stroked: true,
-        filled: true,
-        extruded: false,
-        getElevation: 1,
-        lineWidthMinPixels: 2,
-        getFillColor: COLOR_GEO_FILL,
-        getLineColor: COLOR_GEO_EDGE,
-        pickable: false,
-        transitions: {
-          getFillColor: {
-            duration: 5000,
-            easing: d3.easeCubicInOut,
-            enter: () => [COLOR_GEO_FILL[0], COLOR_GEO_FILL[1], COLOR_GEO_FILL[2], 0],
-          },
-          getLineColor: {
-            duration: 5000,
-            easing: d3.easeCubicInOut,
-            enter: () => [COLOR_GEO_EDGE[0], COLOR_GEO_EDGE[1], COLOR_GEO_EDGE[2], 0],
-          },
+    const txCountiesLayer = new GeoJsonLayer({
+      id: 'geo_tx_counties',
+      data: '/assets/geojson/TX/_counties.geo.json',
+      opacity: 1,
+      stroked: true,
+      filled: true,
+      extruded: false,
+      getElevation: 1,
+      lineWidthMinPixels: 2,
+      getFillColor: COLOR_GEO_FILL,
+      getLineColor: COLOR_GEO_EDGE,
+      pickable: false,
+      transitions: {
+        getFillColor: {
+          duration: 1200,
+          easing: d3.easeCubicInOut,
+          enter: () => [COLOR_GEO_FILL[0], COLOR_GEO_FILL[1], COLOR_GEO_FILL[2], 0],
         },
-      });
-      this.geoLayers.push(geoLayer);
+        getLineColor: {
+          duration: 1200,
+          easing: d3.easeCubicInOut,
+          enter: () => [COLOR_GEO_EDGE[0], COLOR_GEO_EDGE[1], COLOR_GEO_EDGE[2], 0],
+        },
+      },
+    });
 
-      const d = centroidByCounty.get(county) ?? [];
-      if (d.length > 0) {
-        const geoTextLayer = new TextLayer({
-          id: 'geotext_' + county,
-          data: d,
-          getText: (row) => row.county,
-          getPosition: (row) => [Number(row.longitude), Number(row.latitude), 5000],
-          getColor: () => COLOR_GEO_TEXT,
-          sizeUnits: 'meters',
-          getSize: () => 10000,
-          sizeScale: 1,
-          parameters: {
-            blend: true,
-            blendEquation: 0x1801,
-            depthTest: true,
-          },
-        });
-        this.geoTextLayers.push(geoTextLayer);
-      }
-    }
+    const txCountyLabelLayer = new TextLayer({
+      id: 'geo_text_tx_counties',
+      data: this.props.CountyCentroidData,
+      getText: (row) => row.county,
+      getPosition: (row) => [Number(row.longitude), Number(row.latitude), 5000],
+      getColor: () => COLOR_GEO_TEXT,
+      sizeUnits: 'meters',
+      getSize: () => 10000,
+      sizeScale: 1,
+    });
+
+    this.baseLayers = [txCountiesLayer, txCountyLabelLayer];
 
     this.choiceProviders = [];
     this.singleProviders = [];
@@ -124,11 +96,6 @@ class CoverageMap extends Component {
       getPosition: (d) => [Number(d['Longitude']), Number(d['Latitude']), 1000],
       getRadius: () => 96560.6,
       getFillColor: () => COLOR_RURAL,
-      parameters: {
-        blend: true,
-        blendEquation: 0x8008,
-        depthTest: true,
-      },
       transitions: {
         getRadius: {
           enter: () => [0],
@@ -150,11 +117,6 @@ class CoverageMap extends Component {
       getPosition: (d) => [Number(d['Longitude']), Number(d['Latitude']), 2000],
       getRadius: () => 48280.3,
       getFillColor: () => COLOR_NONRURAL,
-      parameters: {
-        blend: true,
-        blendEquation: 0x8008,
-        depthTest: true,
-      },
       transitions: {
         getRadius: {
           enter: () => [0],
@@ -174,11 +136,6 @@ class CoverageMap extends Component {
       iconMapping: 'assets/marker/location-icon-mapping.json',
       getIcon: () => 'marker-choice',
       sizeScale: 15,
-      parameters: {
-        blend: true,
-        blendEquation: 0x88e5,
-        depthTest: true,
-      },
     });
 
     const singleLayer = new IconLayer({
@@ -191,20 +148,14 @@ class CoverageMap extends Component {
       iconMapping: 'assets/marker/location-icon-mapping.json',
       getIcon: () => 'marker-single',
       sizeScale: 15,
-      parameters: {
-        blend: true,
-        blendEquation: 0x88e5,
-        depthTest: true,
-      },
     });
 
     this.layers = [
-      ...this.geoLayers,
+      ...this.baseLayers,
       ruralLayer,
       nonRuralLayer,
       choiceLayer,
       singleLayer,
-      ...this.geoTextLayers,
     ];
   }
 

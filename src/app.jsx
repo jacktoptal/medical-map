@@ -1,13 +1,14 @@
-import { Component } from 'react';
+import { Component, lazy, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import './app.css';
 
-import Map from './components/Map';
 import Filter from './components/Filter';
 
 import CountyData from '../assets/county.csv';
 import CountyCentroidData from '../assets/counties_centroid.csv';
 import ProviderData from '../assets/provider.csv';
+
+const MapView = lazy(() => import('./components/Map'));
 
 const ProviderLegendType = {
   Choice: 0,
@@ -17,16 +18,6 @@ const ProviderLegendType = {
 const RuralType = {
   Rural: 0,
   NonRural: 1,
-};
-
-const isExistValueInArray = (array, value) => {
-  let isExistValue = false;
-  for (const i in array) {
-    if (array[i] == value) {
-      isExistValue = true;
-    }
-  }
-  return isExistValue;
 };
 
 export default class App extends Component {
@@ -51,36 +42,39 @@ export default class App extends Component {
   }
 
   setRuralData(providerData, countyData) {
-    for (let i = 0; i < providerData.length; i++) {
-      const pData = providerData[i];
-      const pCounty = pData['County'];
+    const ruralByCounty = new Map();
+    for (let i = 0; i < countyData.length; i++) {
+      const county = countyData[i]['county'];
+      if (county) {
+        ruralByCounty.set(county, countyData[i]['type'] === 'Non-rural' ? RuralType.NonRural : RuralType.Rural);
+      }
+    }
 
-      const filteredData = countyData.filter((d) => d['county'] == pCounty);
-      if (filteredData.length > 0) {
-        providerData[i]['Rural'] =
-          filteredData[0]['type'] === 'Non-rural' ? RuralType.NonRural : RuralType.Rural;
+    for (let i = 0; i < providerData.length; i++) {
+      const pCounty = providerData[i]['County'];
+      if (ruralByCounty.has(pCounty)) {
+        providerData[i]['Rural'] = ruralByCounty.get(pCounty);
       }
     }
   }
 
   setLegendData(providerData) {
+    const addressCounts = new Map();
     for (let i = 0; i < providerData.length; i++) {
-      const pData = providerData[i];
-      const pAddress = pData['Address'];
+      const address = providerData[i]['Address'];
+      addressCounts.set(address, (addressCounts.get(address) ?? 0) + 1);
+    }
 
-      const filteredData = providerData.filter((d) => d['Address'] == pAddress);
-      if (filteredData.length > 1) {
-        providerData[i]['Legend'] = ProviderLegendType.Choice;
-      } else {
-        providerData[i]['Legend'] = ProviderLegendType.Single;
-      }
+    for (let i = 0; i < providerData.length; i++) {
+      const pAddress = providerData[i]['Address'];
+      providerData[i]['Legend'] =
+        (addressCounts.get(pAddress) ?? 0) > 1 ? ProviderLegendType.Choice : ProviderLegendType.Single;
     }
   }
 
   filterDataBySpecialty(selectedSpecialties) {
-    const filteredData = ProviderData.filter((d) =>
-      isExistValueInArray(selectedSpecialties, d['Specialty 1']),
-    );
+    const selectedSpecialtiesSet = new Set(selectedSpecialties);
+    const filteredData = ProviderData.filter((d) => selectedSpecialtiesSet.has(d['Specialty 1']));
     this.setLegendData(filteredData);
 
     this.pData = filteredData;
@@ -91,27 +85,15 @@ export default class App extends Component {
   }
 
   getSpecialties(providerData) {
-    const providerJson = {};
+    const specialtiesSet = new Set();
     for (let i = 0; i < providerData.length; i++) {
-      const pData = providerData[i];
-      const providerType = pData['Specialty 1'];
-      if (providerType !== null) {
-        if (providerType in providerJson) {
-          providerJson[providerType].data.push(pData);
-        } else {
-          providerJson[providerType] = {
-            data: [pData],
-          };
-        }
+      const providerType = providerData[i]['Specialty 1'];
+      if (providerType !== null && providerType !== undefined && providerType !== '') {
+        specialtiesSet.add(providerType);
       }
     }
 
-    const specialties = [];
-    Object.keys(providerJson).forEach((key) => {
-      specialties.push(key);
-    });
-
-    return specialties;
+    return Array.from(specialtiesSet);
   }
 
   componentDidMount() {
@@ -142,13 +124,21 @@ export default class App extends Component {
         </header>
 
         <div className="flex min-h-0 flex-1 flex-col gap-3 min-[1281px]:flex-row min-[1281px]:gap-4">
-          <Map
-            CountyData={CountyData}
-            CountyCentroidData={CountyCentroidData}
-            ProviderData={this.pData}
-            width={this.state.width}
-            height={this.state.height}
-          />
+          <Suspense
+            fallback={
+              <div className="flex min-h-[420px] min-w-0 flex-[3] items-center justify-center rounded-2xl border border-white/60 bg-white/70 text-sm text-slate-600 shadow-sm backdrop-blur">
+                Loading map...
+              </div>
+            }
+          >
+            <MapView
+              CountyData={CountyData}
+              CountyCentroidData={CountyCentroidData}
+              ProviderData={this.pData}
+              width={this.state.width}
+              height={this.state.height}
+            />
+          </Suspense>
           <Filter
             Specialties={this.specialties}
             changeSpecialty={this.filterDataBySpecialty}

@@ -45,7 +45,21 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       outDir: 'dist',
-      sourcemap: true,
+      sourcemap: mode !== 'production',
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes('node_modules')) return;
+
+            if (id.includes('node_modules/mapbox-gl/')) return 'vendor-mapbox';
+            if (id.includes('node_modules/@deck.gl/')) return 'vendor-deckgl';
+            if (id.includes('node_modules/@mui/')) return 'vendor-mui';
+            if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+              return 'vendor-react';
+            }
+          },
+        },
+      },
     },
   };
 });

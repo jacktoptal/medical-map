@@ -18,7 +18,7 @@ const COLOR_GEO_FILL = [136, 86, 167, 255];
 const COLOR_RURAL = [158, 188, 218, 230];
 const COLOR_NONRURAL = [200, 216, 224, 230];
 
-class Map extends Component {
+class CoverageMap extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -32,10 +32,20 @@ class Map extends Component {
       },
       width: 0,
       height: 0,
-      pData: this.props.ProviderData,
     };
+    this.onViewStateChange = this.onViewStateChange.bind(this);
 
     this.layers = [];
+
+    const centroidByCounty = new Map();
+    for (let i = 0; i < this.props.CountyCentroidData.length; i++) {
+      const row = this.props.CountyCentroidData[i];
+      const county = row.county;
+      if (!centroidByCounty.has(county)) {
+        centroidByCounty.set(county, []);
+      }
+      centroidByCounty.get(county).push(row);
+    }
 
     this.geoLayers = [];
     this.geoTextLayers = [];
@@ -72,7 +82,7 @@ class Map extends Component {
       });
       this.geoLayers.push(geoLayer);
 
-      const d = this.props.CountyCentroidData.filter((row) => row.county == county);
+      const d = centroidByCounty.get(county) ?? [];
       if (d.length > 0) {
         const geoTextLayer = new TextLayer({
           id: 'geotext_' + county,
@@ -100,11 +110,11 @@ class Map extends Component {
   }
 
   updateLayers() {
-    this.parseProviderData();
+    const providerGroups = this.parseProviderData();
 
     const ruralLayer = new ScatterplotLayer({
       id: 'rural-layer',
-      data: this.ruralProviders,
+      data: providerGroups.ruralProviders,
       pickable: true,
       opacity: 1,
       stroked: false,
@@ -130,7 +140,7 @@ class Map extends Component {
 
     const nonRuralLayer = new ScatterplotLayer({
       id: 'nonrural-layer',
-      data: this.nonRuralProviders,
+      data: providerGroups.nonRuralProviders,
       pickable: true,
       opacity: 1,
       stroked: false,
@@ -156,7 +166,7 @@ class Map extends Component {
 
     const choiceLayer = new IconLayer({
       id: 'choice-layer',
-      data: this.choiceProviders,
+      data: providerGroups.choiceProviders,
       pickable: true,
       wrapLongitude: true,
       getPosition: (d) => [Number(d['Longitude']), Number(d['Latitude']), 3000],
@@ -173,7 +183,7 @@ class Map extends Component {
 
     const singleLayer = new IconLayer({
       id: 'single-layer',
-      data: this.singleProviders,
+      data: providerGroups.singleProviders,
       pickable: true,
       wrapLongitude: true,
       getPosition: (d) => [Number(d['Longitude']), Number(d['Latitude']), 3000],
@@ -199,10 +209,25 @@ class Map extends Component {
   }
 
   parseProviderData() {
-    this.choiceProviders = this.props.ProviderData.filter((d) => d['Legend'] == 0);
-    this.singleProviders = this.props.ProviderData.filter((d) => d['Legend'] == 1);
-    this.ruralProviders = this.props.ProviderData.filter((d) => d['Rural'] == 0);
-    this.nonRuralProviders = this.props.ProviderData.filter((d) => d['Rural'] == 1);
+    const choiceProviders = [];
+    const singleProviders = [];
+    const ruralProviders = [];
+    const nonRuralProviders = [];
+
+    for (let i = 0; i < this.props.ProviderData.length; i++) {
+      const provider = this.props.ProviderData[i];
+      if (provider['Legend'] == 0) choiceProviders.push(provider);
+      if (provider['Legend'] == 1) singleProviders.push(provider);
+      if (provider['Rural'] == 0) ruralProviders.push(provider);
+      if (provider['Rural'] == 1) nonRuralProviders.push(provider);
+    }
+
+    return {
+      choiceProviders,
+      singleProviders,
+      ruralProviders,
+      nonRuralProviders,
+    };
   }
 
   componentDidUpdate(prevProps) {
@@ -216,9 +241,6 @@ class Map extends Component {
 
     this.setMapSize();
     this.updateLayers();
-    this.setState({
-      pData: this.props.ProviderData,
-    });
   }
 
   componentDidMount() {
@@ -232,10 +254,12 @@ class Map extends Component {
     const w = el.clientWidth;
     const h = el.clientHeight;
 
-    this.setState({
-      width: w,
-      height: h,
-    });
+    if (this.state.width !== w || this.state.height !== h) {
+      this.setState({
+        width: w,
+        height: h,
+      });
+    }
   }
 
   onViewStateChange({ viewState }) {
@@ -278,7 +302,7 @@ class Map extends Component {
               layers={this.layers}
               viewState={this.state.viewState}
               controller={true}
-              onViewStateChange={this.onViewStateChange.bind(this)}
+              onViewStateChange={this.onViewStateChange}
             >
               <MapGL
                 reuseMaps
@@ -293,4 +317,4 @@ class Map extends Component {
   }
 }
 
-export default Map;
+export default CoverageMap;

@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
+
+/* deck.gl / map overlay canvases */
+.overlays canvas {
+  mix-blend-mode: multiply;
+}

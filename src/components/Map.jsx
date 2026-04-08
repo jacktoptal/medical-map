@@ -247,7 +247,7 @@ class Map extends Component {
   render() {
     if (!isMapboxConfigured()) {
       return (
-        <div className="flex min-h-0 min-w-0 flex-[3] flex-col items-center justify-center gap-2 bg-slate-100 p-6 text-center text-slate-700">
+        <div className="flex min-h-0 min-w-0 flex-[3] flex-col items-center justify-center rounded-2xl border border-white/60 bg-white/80 p-6 text-center text-slate-700 shadow-sm backdrop-blur">
           <p className="max-w-md text-sm leading-relaxed">
             Add <code className="rounded bg-white px-1 py-0.5 font-mono text-xs">VITE_MAPBOX_ACCESS_TOKEN</code>{' '}
             and <code className="rounded bg-white px-1 py-0.5 font-mono text-xs">VITE_MAPBOX_STYLE</code> to your{' '}
@@ -264,7 +264,11 @@ class Map extends Component {
     }
 
     return (
-      <div className="flex min-h-0 min-w-0 flex-[3] flex-col">
+      <div className="flex min-h-[420px] min-w-0 flex-[3] flex-col overflow-hidden rounded-2xl border border-white/60 bg-white/70 shadow-sm backdrop-blur">
+        <div className="flex items-center justify-between border-b border-slate-200/70 px-4 py-3">
+          <h2 className="text-sm font-semibold text-slate-800">Coverage View</h2>
+          <span className="text-xs text-slate-500">Texas providers by specialty</span>
+        </div>
         <div className="map-page relative h-full w-full">
           <div
             className="absolute isolate"

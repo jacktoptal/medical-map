@@ -2,10 +2,23 @@
 
 body {
   margin: 0;
-  font-family: sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background:
+    radial-gradient(1200px 600px at 0% 0%, #dbeafe 0%, rgba(219, 234, 254, 0) 60%),
+    radial-gradient(1200px 600px at 100% 100%, #ede9fe 0%, rgba(237, 233, 254, 0) 60%),
+    #f8fafc;
+  color: #0f172a;
+}
+
+#app {
+  min-height: 100vh;
 }
 
 /* deck.gl / map overlay canvases */
 .overlays canvas {
   mix-blend-mode: multiply;
+}
+
+* {
+  box-sizing: border-box;
 }

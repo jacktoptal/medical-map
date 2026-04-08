@@ -133,15 +133,29 @@ export default class App extends Component {
 
   render() {
     return (
-      <div className="root flex h-screen w-screen flex-col overflow-hidden min-[1281px]:flex-row">
-        <Map
-          CountyData={CountyData}
-          CountyCentroidData={CountyCentroidData}
-          ProviderData={this.pData}
-          width={this.state.width}
-          height={this.state.height}
-        />
-        <Filter Specialties={this.specialties} changeSpecialty={this.filterDataBySpecialty} />
+      <div className="root flex min-h-screen w-full flex-col p-3 md:p-4 min-[1281px]:h-screen min-[1281px]:overflow-hidden">
+        <header className="mb-3 rounded-2xl border border-white/60 bg-white/70 px-4 py-3 shadow-sm backdrop-blur md:mb-4 md:px-5">
+          <h1 className="text-base font-semibold tracking-tight text-slate-900 md:text-lg">Medical Coverage Map</h1>
+          <p className="mt-1 text-xs text-slate-600 md:text-sm">
+            Explore treating providers by specialty with county-level context.
+          </p>
+        </header>
+
+        <div className="flex min-h-0 flex-1 flex-col gap-3 min-[1281px]:flex-row min-[1281px]:gap-4">
+          <Map
+            CountyData={CountyData}
+            CountyCentroidData={CountyCentroidData}
+            ProviderData={this.pData}
+            width={this.state.width}
+            height={this.state.height}
+          />
+          <Filter
+            Specialties={this.specialties}
+            changeSpecialty={this.filterDataBySpecialty}
+            totalProviders={ProviderData.length}
+            visibleProviders={this.pData.length}
+          />
+        </div>
       </div>
     );
   }

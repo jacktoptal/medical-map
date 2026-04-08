@@ -4,7 +4,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "start": "vite --port 9001 --open",
+    "start": "vite --host --port 9001 --open",
     "build": "vite build"
   },
   "dependencies": {

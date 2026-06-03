@@ -4,9 +4,9 @@ import './app.css';
 
 import Filter from './components/Filter';
 
-import CountyData from '../assets/county.csv';
-import CountyCentroidData from '../assets/counties_centroid.csv';
-import ProviderData from '../assets/provider.csv';
+import CountyData from './assets/county.csv';
+import CountyCentroidData from './assets/counties_centroid.csv';
+import ProviderData from './assets/provider.csv';
 
 const MapView = lazy(() => import('./components/Map'));
 

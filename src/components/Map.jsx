@@ -38,7 +38,7 @@ class CoverageMap extends Component {
     this.layers = [];
     const txCountiesLayer = new GeoJsonLayer({
       id: 'geo_tx_counties',
-      data: '/assets/geojson/TX/_counties.geo.json',
+      data: '/geojson/TX/_counties.geo.json',
       opacity: 1,
       stroked: true,
       filled: true,
